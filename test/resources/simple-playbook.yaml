@@ -1,0 +1,8 @@
+---
+tasks:
+
+- name: Hello world
+  shell: echo "Hello world!"
+
+- name: Get the list of hosts
+  shell: cat /etc/hosts
