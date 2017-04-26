@@ -7,21 +7,35 @@ class Variables(object):
     def __init__(self):
         self._vars = defaultdict(dict)
 
-    def get_vars(self, section):
+    def put(self, section, kwargs):
+        ''' set the k/v for the specific action
+        :param section: section name
+        :param kwargs: key/value pairs
+        '''
+        if isinstance(kwargs, dict):
+            self._vars[section].update(kwargs)
+        else:
+            raise RuntimeError('Expected dict, found %s' % type(type(kwargs)))
+        return self
+
+    def get(self, section, k=None):
         ''' get the k/v for the section
         
         :param section: section name 
-        :return return the k/v for the section
+        :return the k/v for the section
         '''
         result = {}
         if section in self._vars:
             result = self._vars.get(section)
+        result = result.get(k) if k else result
         return result
 
-    def set_vars(self, section, k, v):
-        ''' set the k/v for the specific action
-        :param section: section name
-        :param k: parameter key
-        :param v: parameter value
+    @property
+    def sections(self):
+        return self._vars.keys()
+
+    def all(self):
+        ''' get all k/v
+        :return all k/v variables
         '''
-        print(self._vars[section])
+        return self._vars.items()

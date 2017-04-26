@@ -42,12 +42,13 @@ class Playbook(object):
         for kwargs in self.tasks:
             task = Task(**kwargs)
 
-            logger.info(dict(name=task.name))
             result = task.execute()
             if result['status'] == 'FAILED':
-                logger.error(dict(name = task.name, msg = result['msg']))
+                logger.error(dict(name = task.name, msg = result['msg'], status=result['status']))
                 break
-            print(result)
+            else:
+                logger.info(dict(name=task.name, status=result['status']))
+            # print(result)
 
     def _parse(self):
 

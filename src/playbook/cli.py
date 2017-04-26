@@ -82,9 +82,9 @@ class CLI(object):
                             action='append',
                             help="playbook arguments")
         parser.add_argument('--list-tasks', dest='tasks_list', action='store_true',
-                            help="list all tasks that would be executed")
+                            help="list all tasks in te playbook")
         parser.add_argument('-l', '--loglevel', dest='log_level',
-                            default=logging.ERROR,
+                            default=logging.INFO,
                             help='logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL')
 
         args = parser.parse_args(sys.argv[2:])
