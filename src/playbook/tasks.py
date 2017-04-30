@@ -11,17 +11,15 @@ logger = Logger(__name__)
 
 class Task(object):
     def __init__(self, **kwargs):
+        descr = kwargs.pop('name', '')
+        if descr:
+            kwargs['description'] = descr
 
-        self._name = kwargs.pop('name', None)
         self._action = self._get_action_name(kwargs)
         if not self._action:
             raise UnknownAction('Unknown task action, %s' % kwargs)
 
         self._kwargs = kwargs
-
-    @property
-    def name(self):
-        return self._name
 
     @property
     def action(self):
@@ -34,7 +32,9 @@ class Task(object):
             return None
         else:
             action = [k for k in kwargs.keys() if k in actions.get_all()]
-            return action[0]
+            if action:
+                return action[0]
+            return None
 
     def _parse_args(self):
         ''' parse action arguments '''
@@ -48,7 +48,8 @@ class Task(object):
                 kwargs.update({kv[0]: kv[1]})
         return (args, kwargs)
 
-    def execute(self):
+    def execute(self, vars):
         ''' Execute the task '''
         args, kwargs = self._parse_args()
-        return actions.ActionExecutor(self._action, *args, **kwargs).apply()
+        for res in actions.ActionExecutor(self._action, *args, **kwargs).apply(vars):
+            yield res

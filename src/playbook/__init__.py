@@ -32,6 +32,15 @@ class Playbook(object):
     def vars(self):
         return self._vars
 
+    def _parse(self):
+
+        data = DataLoader().load_from_file(self.path)
+        for play in data:
+            if 'vars' in play and isinstance(play['vars'], dict):
+                self._vars = play.get('vars')
+            if 'tasks' in play and isinstance(play['tasks'], list):
+                self._tasks = play.get('tasks')
+
     def run(self):
         ''' verify and run playbook 
         '''
@@ -42,19 +51,10 @@ class Playbook(object):
         for kwargs in self.tasks:
             task = Task(**kwargs)
 
-            result = task.execute()
-            if result['status'] == 'FAILED':
-                logger.error(dict(name = task.name, msg = result['msg'], status=result['status']))
-                break
-            else:
-                logger.info(dict(name=task.name, status=result['status']))
-            # print(result)
-
-    def _parse(self):
-
-        data = DataLoader().load_from_file(self.path)
-        for play in data:
-            if 'vars' in play and isinstance(play['vars'], dict):
-                self._vars = play.get('vars')
-            if 'tasks' in play and isinstance(play['tasks'], list):
-                self._tasks = play.get('tasks')
+            for result in task.execute(self._vars):
+                if result['status'] == 'FAILED':
+                    logger.error(dict(name=result['description'], msg=result['msg'], status=result['status']))
+                    break
+                else:
+                    logger.info(dict(name=result['description'], status=result['status']))
+                logger.debug(result)
