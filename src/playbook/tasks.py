@@ -2,6 +2,8 @@ from __future__ import (absolute_import, division, print_function)
 
 import shlex
 
+from six import string_types
+
 from playbook import actions
 from playbook.log import Logger
 from playbook.errors import UnknownAction
@@ -39,13 +41,17 @@ class Task(object):
     def _parse_args(self):
         ''' parse action arguments '''
         args = list()
-        kwargs = self._kwargs
-        for arg in shlex.split(self._kwargs.pop(self.action, '')):
-            kv = arg.split('=', 1)
-            if len(kv) == 1:
-                args.append(kv[0])
-            else:
-                kwargs.update({kv[0]: kv[1]})
+        kwargs = self._kwargs.copy()
+        action_args = kwargs.pop(self.action, '')
+        if isinstance(action_args, string_types):
+            for arg in shlex.split(action_args):
+                kv = arg.split('=', 1)
+                if len(kv) == 1:
+                    args.append(kv[0])
+                else:
+                    kwargs.update({kv[0]: kv[1]})
+        elif isinstance(action_args, (list, tuple)):
+            args.extend(action_args)
         return (args, kwargs)
 
     def execute(self, vars):
