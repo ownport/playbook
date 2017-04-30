@@ -5,6 +5,8 @@ an IT automation tool
 
 ## Sample
 
+Simple commands
+
 ```yaml
 ---
 tasks:
@@ -14,6 +16,24 @@ tasks:
 
 - name: Get the list of hosts
   shell: cat /etc/hosts
+```
+
+Script
+```yaml
+---
+tasks:
+
+- name: run test script
+  script:
+  - echo "Test script 1"
+  - echo "Test script 2"
+  - echo "Test script 3"
+```
+
+Alternative in bash:
+
+```sh
+$ echo "Test script 1" && echo "Test script 2" && echo "Test script 3"
 ```
 
 ## How to use
