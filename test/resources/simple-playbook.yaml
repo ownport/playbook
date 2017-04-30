@@ -6,3 +6,10 @@ tasks:
 
 - name: Get the list of hosts
   shell: cat /etc/hosts
+
+- name: Several Hello world {{item}}
+  shell: echo 'Hellow world:{{item}}'
+  foreach:
+    - 'i1'
+    - 'i2'
+    - 'i3'
