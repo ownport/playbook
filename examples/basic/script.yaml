@@ -1,8 +1,0 @@
----
-tasks:
-
-- name: run test script
-  script:
-  - echo "Test script 1"
-  - echo "Test script 2"
-  - echo "Test script 3"
