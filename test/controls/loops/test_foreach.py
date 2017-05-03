@@ -1,4 +1,4 @@
-from playbook.actions.loops.foreach import Action
+from playbook.controls.loops.foreach import Action
 
 
 def test_actions_loops_foreach_create():

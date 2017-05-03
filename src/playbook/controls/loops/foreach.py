@@ -8,7 +8,12 @@ class Action(BaseAction):
     name = 'foreach'
 
     def handler(self):
-        _result = list()
+        return [r for r in self.next()]
+
+    def next(self):
         for arg in self._args:
-            _result.append({u'data': arg})
-        return _result
+            yield {u'data': arg}
+
+    def __iter__(self):
+        return self.next()
+

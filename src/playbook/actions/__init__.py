@@ -1,5 +1,6 @@
 from __future__ import (absolute_import, division, print_function)
 
+import copy
 import time
 
 from playbook.templates import Template
@@ -106,8 +107,26 @@ class ActionExecutor(object):
 
     def apply(self, vars):
         template = Template()
-        # # handling foreach action
-        foreach_args = self._kwargs.pop('foreach', None)
+        args = copy.deepcopy(self._args)
+        kwargs = copy.deepcopy(self._kwargs)
+
+        # pipeline: foreach -> when -> action
+        processors = list()
+
+        if 'foreach' in self._kwargs and self._kwargs.get('foreach', None):
+            action = self._import_action(ACTIONS.get('foreach'))
+            processors.append(action(*self._kwargs.pop('foreach')))
+
+        if 'when' in self._kwargs and self._kwargs.get('when', None):
+            action = self._import_action(ACTIONS.get('when'))
+            processors.append(action(*self._kwargs.pop('when')))
+
+        # processing logic
+        for proc in processors:
+            print(proc)
+
+        # handling foreach action
+        foreach_args = self._kwargs.get('foreach', None)
         if foreach_args:
             foreach_action = self._import_action(ACTIONS.get('foreach'))
             for item in foreach_action(*foreach_args).run():
@@ -115,9 +134,10 @@ class ActionExecutor(object):
                 _vars[u'item'] = item[u'data']
                 args = template.render(self._args, _vars)
                 kwargs = template.render(self._kwargs, _vars)
-                yield self._action(*args, **kwargs).run()
-        else:
-            yield self._action(*self._args, **self._kwargs).run()
+
+        # conditions
+
+        yield self._action(*args, **kwargs).run()
 
 
 ACTIONS = {
@@ -126,6 +146,9 @@ ACTIONS = {
     'shell': 'playbook.actions.basic.shell',
     'script': 'playbook.actions.basic.script',
 
+    # conditions
+    'when': 'playbook.controls.conditions.case_when',
+
     # loops
-    'foreach': 'playbook.actions.loops.foreach',
+    'foreach': 'playbook.controls.loops.foreach',
 }
